@@ -148,7 +148,7 @@ t.send
 
 The `receive` method returns a Promise resolved when a transmission is received, so you can chain subsequent transmissions in a thenable way, e.g.:
 
-```coffescript
+```coffeescript
 t.receive 'quotient', (data) ->
   chai.expect(data).to.equal 5
 .then ->
