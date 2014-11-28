@@ -1,6 +1,6 @@
 {
   "name": "noflo-tester",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "NoFlo component/graph testing wrapper compatible with BDD/TDD/whatever",
   "main": "index.js",
   "scripts": {

@@ -62,8 +62,16 @@ class Tester
         else
           whenReady()
 
-  # Sends data packets to multiple inports and disconnects them
-  send: (hashmap) =>
+  # Sends data packets to one or multiple inports and disconnects them.
+  #
+  # It accepts either a single hashmap argument mapping port names to data,
+  # or a pair of arguments with port name and data to sent to that single
+  # port.
+  send: (hashmap, singleData) =>
+    if typeof(hashmap) is 'string'
+      port = hashmap
+      hashmap = {}
+      hashmap[port] = singleData
     for port, value of hashmap
       throw new Error "No such inport: #{port}" unless port of @ins
       @ins[port].send value

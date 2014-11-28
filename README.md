@@ -82,6 +82,12 @@ t.send
 
 Note that `receive` is called before `send`, because it binds event handlers asynchronously, while `send` is almost an instant operation.
 
+Short syntax for `send` method to send data and disconnect to just one inport looks like this:
+
+```coffeescript
+t.send 'x', 123
+```
+
 ### Direct access to component, ports and events
 
 In more complex test cases you might want to send IPs and handle particular events manually:
