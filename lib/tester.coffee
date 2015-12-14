@@ -24,7 +24,7 @@ class Tester
         @baseDir = process.env.NOFLO_TEST_BASEDIR
       else
         @baseDir = process.cwd()
-      @loader = new noflo.ComponentLoader @baseDir
+      @loader = new noflo.ComponentLoader @baseDir, cache: true
 
   # Loads a component, attaches inputs and outputs and starts it.
   #
