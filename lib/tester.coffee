@@ -1,5 +1,6 @@
 noflo = require 'noflo'
 Promise = require 'bluebird'
+trace = require('noflo-runtime-base').trace
 
 # Tester loads and wraps a NoFlo component or graph
 # for testing it with input and output commands.
@@ -25,6 +26,9 @@ class Tester
       else
         @baseDir = process.cwd()
       @loader = new noflo.ComponentLoader @baseDir, cache: true
+    if @options.debug
+      # instantiate our Tracer
+      @tracer = new trace.Tracer()
 
   # Loads a component, attaches inputs and outputs and starts it.
   #
@@ -58,9 +62,18 @@ class Tester
         if typeof(@c.loader) is 'object'
           # Graphs need to wait for ready event
           @c.once 'ready', ->
+            if @options.debug
+              @tracer.attach @network
+
             whenReady()
         else
           whenReady()
+
+  dumpTrace: (fileName = null) =>
+    if @options.debug
+      @tracer.dumpFile fileName, (err, f) ->
+        throw err if err
+        console.log 'Wrote flowtrace to', f
 
   # Sends data packets to one or multiple inports and disconnects them.
   #
