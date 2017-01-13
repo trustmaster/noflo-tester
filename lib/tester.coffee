@@ -87,8 +87,8 @@ class Tester
       hashmap[port] = singleData
     for port, value of hashmap
       throw new Error "No such inport: #{port}" unless port of @ins
-      @ins[port].send value
-      @ins[port].disconnect()
+      ip = if noflo.IP.isIP value then value else new noflo.IP 'data', value
+      @ins[port].post ip
 
   # Listens for a transmission from an outport of a component until next
   # disconnect event.
@@ -131,7 +131,7 @@ class Tester
           unless groups.indexOf(group) isnt -1
             groups.push group
             groupCount++
-        @outs[portName].on 'disconnect', =>
+        @outs[portName].on 'disconnect', ->
           return if listeningForIps
           finish()
 
@@ -140,7 +140,7 @@ class Tester
           if packet.type is 'openBracket'
             brackets++
             # Capture only unique groups
-            unless groups.indexOf(packet.data) isnt -1
+            if packet.data isnt null and groups.indexOf(packet.data) is -1
               groups.push packet.data
               groupCount++
           if packet.type is 'closeBracket'

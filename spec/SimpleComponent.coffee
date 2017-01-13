@@ -11,17 +11,15 @@ c.inPorts = new noflo.InPorts
   y:
     datatype: 'int'
 c.outPorts.add 'xy', datatype: 'int'
-noflo.helpers.WirePattern c,
-  in: ['x', 'y']
-  out: 'xy'
-  async: true
-  forwardGroups: true
-, (input, groups, out, done) ->
+c.forwardBrackets =
+  x: ['xy']
+  y: ['xy']
+c.process (input, output) ->
+  return unless input.has 'x', 'y', (ip) -> ip.type is 'data'
+  [x, y] = input.getData 'x', 'y'
   setTimeout ->
-    out.send input.x * input.y
-    done()
+    output.sendDone x * y
   , 0
-
 
 describe 'Simple component tester', ->
   t = new Tester c
@@ -44,45 +42,39 @@ describe 'Simple component tester', ->
       chai.expect(data).to.equal 24
       done()
 
-    t.ins.x.send 8
-    t.ins.x.disconnect()
-    t.ins.y.send 3
-    t.ins.y.disconnect()
+    t.ins.x.post new noflo.IP 'data', 8
+    t.ins.y.post new noflo.IP 'data', 3
 
   it 'should provide direct access to a wrapped component', ->
     chai.expect(t.c.inPorts).to.include.keys ['x', 'y']
     chai.expect(t.c.outPorts).to.include.keys 'xy'
     chai.expect(t.c.description).to.equal c.description
 
-  it 'should pass all data chunks, groups and counts on receive', (done) ->
+  it 'should pass all data chunks, brackets and counts on receive', (done) ->
     x = [1, 2, 3]
     y = [4, 5, 6]
     expectedData = [4, 10, 18]
-    expectedGroups = ['foo', 'bar']
+    expectedBrackets = ['foo', 'bar']
 
-    t.receive 'xy', (data, groups, dataCount, groupCount) ->
+    t.receive 'xy', (data, brackets, dataCount, bracketCount) ->
       chai.expect(data).to.eql expectedData
-      chai.expect(groups).to.eql expectedGroups
+      chai.expect(brackets).to.eql expectedBrackets
       chai.expect(dataCount).to.equal expectedData.length
-      chai.expect(groupCount).to.equal expectedGroups.length
+      chai.expect(bracketCount).to.equal expectedBrackets.length
       done()
 
-    # Sending groups
-    t.ins.x.beginGroup 'foo'
-    t.ins.x.beginGroup 'bar'
-    t.ins.y.beginGroup 'foo'
-    t.ins.y.beginGroup 'bar'
+    # Opening brackets
+    t.ins.x.post new noflo.IP 'openBracket', 'foo'
+    t.ins.x.post new noflo.IP 'openBracket', 'bar'
+    t.ins.y.post new noflo.IP 'openBracket', 'foo'
+    t.ins.y.post new noflo.IP 'openBracket', 'bar'
 
     for i in [0...3]
       t.ins.x.send x[i]
       t.ins.y.send y[i]
 
-    # endGroup affects groupCount
-    t.ins.x.endGroup()
-    t.ins.x.endGroup()
-    t.ins.y.endGroup()
-    t.ins.y.endGroup()
-
-    # receive is only triggered after disconnect
-    t.ins.x.disconnect()
-    t.ins.y.disconnect()
+    # Closing brackets
+    t.ins.x.post new noflo.IP 'closeBracket'
+    t.ins.x.post new noflo.IP 'closeBracket'
+    t.ins.y.post new noflo.IP 'closeBracket'
+    t.ins.y.post new noflo.IP 'closeBracket'

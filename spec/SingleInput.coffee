@@ -13,7 +13,7 @@ noflo.helpers.WirePattern c,
   out.send input
 
 
-describe 'Simple component tester', ->
+describe 'Single input tester', ->
   t = new Tester c
 
   before (done) ->
