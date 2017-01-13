@@ -1,5 +1,6 @@
 noflo = require 'noflo'
 Promise = require 'bluebird'
+trace = require('noflo-runtime-base').trace
 
 # Tester loads and wraps a NoFlo component or graph
 # for testing it with input and output commands.
@@ -25,6 +26,9 @@ class Tester
       else
         @baseDir = process.cwd()
       @loader = new noflo.ComponentLoader @baseDir, cache: true
+    if @options?.debug
+      # instantiate our Tracer
+      @tracer = new trace.Tracer()
 
   # Loads a component, attaches inputs and outputs and starts it.
   #
@@ -58,9 +62,18 @@ class Tester
         if typeof(@c.loader) is 'object'
           # Graphs need to wait for ready event
           @c.once 'ready', ->
+            if @options?.debug
+              @tracer.attach @network
+
             whenReady()
         else
           whenReady()
+
+  dumpTrace: (fileName = null) =>
+    if @options?.debug
+      @tracer.dumpFile fileName, (err, f) ->
+        throw err if err
+        console.log 'Wrote flowtrace to', f
 
   # Sends data packets to one or multiple inports and disconnects them.
   #
@@ -98,20 +111,46 @@ class Tester
         dataCount = 0
         groups = []
         groupCount = 0
+        brackets = 0
+        listeningForIps = false
         @outs[portName].removeAllListeners()
+
+        finish = =>
+          @outs[portName].removeAllListeners()
+          data = data[0] if dataCount is 1
+          done data, groups, dataCount, groupCount if done
+          resolve data
+
         @outs[portName].on 'data', (packet) ->
+          return if listeningForIps
           data.push packet
           dataCount++
         @outs[portName].on 'begingroup', (group) ->
+          return if listeningForIps
           # Capture only unique groups
           unless groups.indexOf(group) isnt -1
             groups.push group
             groupCount++
         @outs[portName].on 'disconnect', =>
-          @outs[portName].removeAllListeners()
-          data = data[0] if dataCount is 1
-          done data, groups, dataCount, groupCount if done
-          resolve data
+          return if listeningForIps
+          finish()
+
+        @outs[portName].on 'ip', (packet) ->
+          listeningForIps = true
+          if packet.type is 'openBracket'
+            brackets++
+            # Capture only unique groups
+            unless groups.indexOf(packet.data) isnt -1
+              groups.push packet.data
+              groupCount++
+          if packet.type is 'closeBracket'
+            brackets--
+          if packet.type is 'data'
+            data.push packet.data
+            dataCount++
+          if brackets is 0
+            finish()
+
     if typeof(port) is 'object'
       # Map of port: callback
       tasks = []

@@ -1,6 +1,6 @@
 {
   "name": "noflo-tester",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "NoFlo component/graph testing wrapper compatible with BDD/TDD/whatever",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,9 @@
   "dependencies": {
     "bluebird": "^2.3.11",
     "coffee-script": "1.10.0",
-    "noflo": "0.5.21"
+    "noflo": "git+https://github.com/aretecode/noflo-built.git#experiment",
+    "noflo-nodejs": "^0.7.1",
+    "noflo-runtime-base": "^0.7.3"
   },
   "devDependencies": {
     "chai": "3.4.1",
