@@ -49,8 +49,13 @@ class Tester
         socket = noflo.internalSocket.createSocket()
         @c.outPorts[name].attach socket
         @outs[name] = socket
-      @c.start()
-      done null, @c if typeof(done) is 'function'
+      return unless typeof done is 'function'
+      if typeof @c.network is 'object'
+        @c.start (err) =>
+          done err, @c
+      else
+        @c.start()
+        done null, @c
     if @c
       whenReady()
     else
