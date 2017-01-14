@@ -61,9 +61,9 @@ class Tester
         @c = instance
         if typeof(@c.loader) is 'object'
           # Graphs need to wait for ready event
-          @c.once 'ready', ->
-            if @options?.debug
-              @tracer.attach @network
+          @c.once 'ready', =>
+            if @options.debug
+              @tracer.attach instance.network
 
             whenReady()
         else
