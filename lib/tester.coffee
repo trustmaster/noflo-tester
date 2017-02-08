@@ -50,12 +50,8 @@ class Tester
         @c.outPorts[name].attach socket
         @outs[name] = socket
       return unless typeof done is 'function'
-      if typeof @c.network is 'object'
-        @c.start (err) =>
-          done err, @c
-      else
-        @c.start()
-        done null, @c
+      @c.start (err) =>
+        done err, @c
     if @c
       whenReady()
     else
