@@ -1,6 +1,8 @@
 NoFlo component/graph testing wrapper
 ============
 
+[![Build Status](https://travis-ci.org/trustmaster/noflo-tester.svg?branch=master)](https://travis-ci.org/trustmaster/noflo-tester)
+
 Tester wraps a component to provide a convenient interface compatible with any testing paradigm: TDD/BDD/whatever.
 
 ## Benefits
