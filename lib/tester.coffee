@@ -21,11 +21,16 @@ class Tester
     else if typeof(@component) is 'function'
       @c = @component()
     else
-      if process.env.NOFLO_TEST_BASEDIR
-        @baseDir = process.env.NOFLO_TEST_BASEDIR
+      if @options.loader
+        @loader = @options.loader
       else
-        @baseDir = process.cwd()
-      @loader = new noflo.ComponentLoader @baseDir, cache: true
+        if @options.baseDir
+          @baseDir = @options.baseDir
+        else if process.env.NOFLO_TEST_BASEDIR
+          @baseDir = process.env.NOFLO_TEST_BASEDIR
+        else
+          @baseDir = process.cwd()
+        @loader = new noflo.ComponentLoader @baseDir, cache: true
     if @options?.debug
       # instantiate our Tracer
       @tracer = new trace.Tracer()
