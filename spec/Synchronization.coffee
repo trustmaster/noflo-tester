@@ -17,20 +17,17 @@ c.outPorts = new noflo.OutPorts
     datatype: 'int'
   error:
     datatype: 'object'
-
-noflo.helpers.WirePattern c,
-  in: ['dividend', 'divisor']
-  out: ['quotient', 'remainder']
-  async: true
-  forwardGroups: true
-, (input, groups, outs, done) ->
+c.process (input, output) ->
+  return unless input.hasData 'dividend', 'divisor'
+  dividend = input.getData 'dividend'
+  divisor = input.getData 'divisor'
   setTimeout ->
-    return done new Error 'Division by 0' if input.divisor == 0
-    if outs.quotient.isAttached()
-      outs.quotient.send parseInt input.dividend / input.divisor, 10
-    if outs.remainder.isAttached()
-      outs.remainder.send parseInt input.dividend % input.divisor, 10
-    done()
+    return output.done new Error 'Division by 0' if divisor == 0
+    if c.outPorts.quotient.isAttached()
+      output.send quotient: parseInt dividend / divisor, 10
+    if c.outPorts.remainder.isAttached()
+      output.send remainder: parseInt dividend % divisor, 10
+    output.done()
   , 0
 
 
