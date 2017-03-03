@@ -40,6 +40,7 @@ class Tester
   #  - `done`: a callback `function(err, instance)` called after starting
   #   a component instance.
   start: (done) ->
+    throw new Error 'start() requires a callback' unless typeof done is 'function'
     whenReady = =>
       @options.ready null, @c if typeof(@options.ready) is 'function'
       @ins = {}
@@ -62,17 +63,13 @@ class Tester
     else
       @loader.load @component, (err, instance) =>
         @options.load err, instance if typeof(@options.load) is 'function'
-        return done err if err and done
-        return if err
+        return done err if err
         @c = instance
-        if typeof(@c.loader) is 'object'
-          # Graphs need to wait for ready event
-          @c.once 'ready', =>
-            if @options.debug
-              @tracer.attach instance.network
-
-            whenReady()
-        else
+        return whenReady() if instance.isReady()
+        # Graphs need to wait for ready event
+        @c.once 'ready', =>
+          if @options.debug
+            @tracer.attach instance.network
           whenReady()
 
   dumpTrace: (fileName = null) =>
