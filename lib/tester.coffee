@@ -40,7 +40,8 @@ class Tester
   #  - `done`: a callback `function(err, instance)` called after starting
   #   a component instance.
   start: (done) ->
-    throw new Error 'start() requires a callback' unless typeof done is 'function'
+    unless typeof done is 'function'
+      throw new Error 'start() requires a callback'
     whenReady = =>
       @options.ready null, @c if typeof(@options.ready) is 'function'
       @ins = {}
