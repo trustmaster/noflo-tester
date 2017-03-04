@@ -7,7 +7,7 @@ Tester wraps a component to provide a convenient interface compatible with any t
 
 # Deprecation warning
 
-** This project has been moved to [noflo-wrapper](https://github.com/noflo/noflo-wrapper) package under [NoFlo](https://github.com/noflo) organization. **
+**This project has been moved to [noflo-wrapper](https://github.com/noflo/noflo-wrapper) package under [NoFlo](https://github.com/noflo) organization.**
 
 Please consider updating your dependencies to use `noflo-wrapper` instead of `noflo-tester`.
 
